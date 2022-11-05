@@ -97,9 +97,9 @@ const initialProps = ({
         ...options?.renderingOptions,
       },
       viewerOptions: {
-        initialPosition: [50, -50, 50],
+        initialPosition: [45, 45, 45],
         panSpeed: 0.75,
-        rotateSpeed: 0.002,
+        rotateSpeed: 0.02,
         zoomSpeed: 0.03,
         ...options?.viewerOptions,
       },
