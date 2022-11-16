@@ -5,81 +5,56 @@ import { rectangle } from '@jscad/modeling/src/primitives'
 
 export class Deg90 {
   woodThickness: number
+  thickness: number
   height: number
   topBar: Geom3
   rightBar: Geom3
   bottomBar: Geom3
   leftBar: Geom3
 
-  constructor(woodThickness: number, height: number) {
+  constructor(woodThickness: number, height: number, thickness: number) {
     this.woodThickness = woodThickness
+    this.thickness = thickness
     this.height = height
     this.topBar = this.setTopBar()
     this.rightBar = this.setRightBar()
-    this.leftBar = this.setTopBar()
-    this.bottomBar = this.setTopBar()
+    this.leftBar = this.setLeftBar()
+    this.bottomBar = this.setBottomBar()
   }
 
   private setTopBar() {
-    const thickness = 2
-    const length = 3 * this.woodThickness + thickness * 2
-    const position: [number, number] = [length / 2, thickness / 2]
-
-    return extrudeLinear(
-      { height: 10 },
-      rectangle({ size: [length, thickness], center: position })
-    )
+    const length = 3 * this.woodThickness + this.thickness * 2
+    const center: [number, number] = [length / 2, this.thickness / 2]
+    const size: [number, number] = [length, this.thickness]
+    return extrudeLinear({ height: this.height }, rectangle({ size, center }))
   }
 
   private setRightBar() {
-    const thickness = 2
-    const length = 3 * this.woodThickness + thickness * 2
-    const position: [number, number] = [length / 2, thickness / 2]
-
-    return extrudeLinear(
-      { height: 10 },
-      rectangle({ size: [length, thickness], center: position })
-    )
-  }
-
-  private setBottomBar() {
-    const thickness = 2
-    const length = 3 * this.woodThickness + thickness * 2
-    const position: [number, number] = [length / 2, thickness / 2]
-
-    return extrudeLinear(
-      { height: 10 },
-      rectangle({ size: [length, thickness], center: position })
-    )
+    const length = 2 * this.woodThickness + this.thickness
+    const center: [number, number] = [this.thickness / 2, length / 2]
+    const size: [number, number] = [this.thickness, length]
+    return extrudeLinear({ height: this.height }, rectangle({ size, center }))
   }
 
   private setLeftBar() {
-    const thickness = 2
-    const length = 3 * this.woodThickness + thickness * 2
-    const position: [number, number] = [length / 2, thickness / 2]
+    const length = 2 * this.woodThickness + this.thickness
+    const size: [number, number] = [this.thickness, length]
+    const center: [number, number] = [length / 2 + this.thickness, length / 2]
 
-    return extrudeLinear(
-      { height: 10 },
-      rectangle({ size: [length, thickness], center: position })
-    )
+    return extrudeLinear({ height: this.height }, rectangle({ size, center }))
+  }
+
+  private setBottomBar() {
+    const length = 2 * this.woodThickness
+    const size: [number, number] = [length, this.thickness]
+    const center: [number, number] = [
+      length + this.thickness * 2,
+      length / 2 + this.thickness + this.thickness / 2,
+    ]
+    return extrudeLinear({ height: this.height }, rectangle({ size, center }))
   }
 
   public getUnion() {
     return union(this.topBar, this.rightBar, this.leftBar, this.bottomBar)
   }
-
-  //   Top bar
-
-  //   extrudeLinear(
-  //     { height: 2 },
-  //     rectangle({ size: [2, 22], center: [1, 11] })
-  //   ),
-  //   extrudeLinear(
-  //     { height: 2 },
-  //     rectangle({ size: [2, 22], center: [13, 11] })
-  //   ),
-  //   extrudeLinear(
-  //     { height: 2 },
-  //     rectangle({ size: [20, 2], center: [24, 13] })
-  //   )
 }
