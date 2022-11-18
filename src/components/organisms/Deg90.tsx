@@ -1,22 +1,18 @@
-import { Geom3, Geom2 } from '@jscad/modeling/src/geometries/types'
 import {
   Box,
   Button,
   Divider,
   Flex,
-  LoadingOverlay,
   NumberInput,
-  Skeleton,
   Text,
   Title,
 } from '@mantine/core'
-import { useEffect, useState, useReducer } from 'react'
+import { useEffect, useState } from 'react'
 import { useDownloadGeom } from '../../hooks'
 import { Renderer } from '../../hooks/render'
 import { Deg90 } from '../../shapes'
 
 export function Deg90Block() {
-  const [loading, setLoading] = useState(false)
   const [woodThickness, setWoodThickness] = useState(5.1)
   const [height, setHeight] = useState(5)
   const [thickness, setThickness] = useState(2)
@@ -25,14 +21,9 @@ export function Deg90Block() {
   )
 
   useEffect(() => {
-    setLoading(true)
     setShape(new Deg90(woodThickness, height, thickness).getUnion())
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000)
   }, [woodThickness, height, thickness])
 
-  const [solids] = useState<any[]>([shape])
   return (
     <Flex direction="column" align="stretch" w="100%" mt="2rem">
       <Title order={2}>Deg90</Title>
@@ -70,21 +61,12 @@ export function Deg90Block() {
             />
           </Box>
           <Flex mt="1rem" gap="sm">
-            {/* <Button onClick={forceUpdate} color="orange">
-              Actualizar
-            </Button> */}
             <Button onClick={() => useDownloadGeom(shape, '90-degrees')}>
               Descargar
             </Button>
           </Flex>
         </Box>
-        <Box w={500} h={400}>
-          {/* {loading ? (
-            <Skeleton width={500} height={400} />
-          ) : ( */}
-          <Renderer animate solids={solids} height={400} width={500} />
-          {/* )} */}
-        </Box>
+        <Renderer animate solids={[shape]} height={400} width={500} />
       </Flex>
     </Flex>
   )
