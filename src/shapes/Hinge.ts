@@ -31,7 +31,7 @@ export class Hinge {
   thickness: number
   height: number
   diameter: number
-  tolerance = 0.2
+  tolerance = 0.4
   base: Geom3
   middle: Geom3
 
@@ -81,7 +81,7 @@ export class Hinge {
 
     let base = union(baseCylinder, baseRectangle)
     const middleCylinder = getCylinder(
-      this.diameter / 4 + this.tolerance * 3,
+      this.diameter / 4 + this.tolerance * 1.5,
       5 - this.tolerance * 2
     )
     base = subtract(base, middleCylinder)
