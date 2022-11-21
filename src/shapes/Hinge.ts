@@ -8,40 +8,91 @@ import {
   translateY,
   translateZ,
 } from '@jscad/modeling/src/operations/transforms'
-import { rectangle, triangle } from '@jscad/modeling/src/primitives'
+import { circle, rectangle, triangle } from '@jscad/modeling/src/primitives'
 import { degToRad } from '@jscad/modeling/src/utils'
 
+const getCylinder = (radius: number, height: number) => {
+  const circunference = circle({ radius: radius })
+  const cylinder = extrudeLinear({ height }, circunference)
+  return cylinder
+}
+
+const getRectangle = (
+  size: [number, number],
+  height: number,
+  center: [number, number] = [0, 0]
+) => {
+  const r = rectangle({ size, center })
+  const rect = extrudeLinear({ height }, r)
+  return rect
+}
 export class Hinge {
   woodThickness: number
   thickness: number
   height: number
+  diameter: number
+  tolerance = 0.2
   base: Geom3
+  middle: Geom3
 
   constructor(woodThickness: number, height: number, thickness: number) {
     this.woodThickness = woodThickness
     this.thickness = thickness
     this.height = height
+    this.diameter = woodThickness + thickness * 2
     this.base = this.setBase()
+    this.middle = this.setMiddle()
   }
 
   private setBase() {
-    const s = this.woodThickness + this.thickness * 2
-    const t2d = triangle({ type: 'SSS', values: [s, s, s] })
-    const t3d = extrudeLinear({ height: this.height }, t2d)
+    const baseCylinder = getCylinder(this.diameter / 2, 5)
 
-    const s2 = this.woodThickness
-    const t2d2 = triangle({ type: 'SSS', values: [s2, s2, s2] })
-    const t3d2 = extrudeLinear({ height: this.height }, t2d2)
-    return subtract(t3d, translate([2, 1], t3d2))
+    // Rectangle
+    const rLength = 1.5 * this.diameter
+    const rWidth = this.diameter
+    let baseRectangle = getRectangle([rLength, rWidth], 5)
+    baseRectangle = translateX(this.diameter / 1.5, baseRectangle)
+    let rectangleToRemove = getRectangle([this.diameter, this.woodThickness], 5)
+    rectangleToRemove = translateX(this.diameter, rectangleToRemove)
+    baseRectangle = subtract(baseRectangle, rectangleToRemove)
+
+    let base = union(baseCylinder, baseRectangle)
+    let baseTop = translateZ(this.height * 2, base)
+
+    const unionCylinder = getCylinder(this.diameter / 4, this.height * 3)
+
+    return union(base, baseTop, unionCylinder)
+  }
+
+  private setMiddle() {
+    let baseCylinder = getCylinder(this.diameter / 2, 5 - this.tolerance * 2)
+
+    // Rectangle
+    const rLength = 1.5 * this.diameter
+    const rWidth = this.diameter
+    let baseRectangle = getRectangle([rLength, rWidth], 5 - this.tolerance * 2)
+    baseRectangle = translateX(this.diameter / 1.5, baseRectangle)
+    let rectangleToRemove = getRectangle(
+      [this.diameter, this.woodThickness],
+      5 - this.tolerance * 2
+    )
+    rectangleToRemove = translateX(this.diameter, rectangleToRemove)
+    baseRectangle = subtract(baseRectangle, rectangleToRemove)
+
+    let base = union(baseCylinder, baseRectangle)
+    const middleCylinder = getCylinder(
+      this.diameter / 4 + this.tolerance * 3,
+      5 - this.tolerance * 2
+    )
+    base = subtract(base, middleCylinder)
+
+    let middle = translateZ(this.height + this.tolerance, base)
+
+    return union(middle)
   }
 
   public getUnion() {
-    const mainBlock = union(
-      this.triangle,
-      this.rectangle1,
-      this.rectangle2,
-      this.rectangle3
-    )
+    const mainBlock = union(this.base, this.middle)
     // const without = subtract(mainBlock, this.subtract)
     return mainBlock
   }
