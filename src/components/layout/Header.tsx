@@ -1,5 +1,7 @@
-import { Container, createStyles, Divider } from '@mantine/core'
+import { Container, createStyles, Divider, Flex } from '@mantine/core'
 import { logo } from '../../assets'
+import { mainMenu } from '../../constants'
+import { Menu } from '../molecules'
 
 const useStyles = createStyles({
   img: {
@@ -12,7 +14,10 @@ export const Header = () => {
   const { classes } = useStyles()
   return (
     <Container py="lg">
-      <img src={logo} className={classes.img} />
+      <Flex align="center" justify="space-between">
+        <img src={logo} className={classes.img} />
+        <Menu menu={mainMenu} />
+      </Flex>
       <Divider mt="lg" />
     </Container>
   )
